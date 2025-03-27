@@ -1,5 +1,6 @@
 import React from 'react'
 
+//not fount
 function NotFound() {
   return (
     <div className='notfound'>
