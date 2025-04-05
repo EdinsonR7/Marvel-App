@@ -1,68 +1,73 @@
 import React, { useState, useEffect } from "react";
 import Card from "./Card";
 import estrella from "../images/estrella_blanca.svg";
+import { getMarvelAuthParams } from "../authMarvel";
+
 const Stories = () => {
   const [dataMarvel, setDataMarvel] = useState();
-  const [busqueda,setBusqueda]=useState();
-  useEffect(()=>{
-    fetch(
-      "https://gateway.marvel.com/v1/public/events?nameStartsWith="+busqueda+"&ts=1&limit=30&apikey=" +
-        import.meta.env.VITE_PUBLIC_MARVEL +
-        "&hash=" +
-        import.meta.env.VITE_HASH
-    )
-      .then((e) => e.json())
-      .then((f) => setDataMarvel(f.data));
-    
+  const [busqueda, setBusqueda] = useState("");
 
-  },[busqueda]) 
+  const fetchEvents = async (query = "") => {
+    try {
+      const { ts, apikey, hash } = getMarvelAuthParams();
+      const url = `https://gateway.marvel.com/v1/public/events?ts=${ts}&limit=30${
+        query ? `&nameStartsWith=${query}` : ""
+      }&apikey=${apikey}&hash=${hash}`;
+
+      const response = await fetch(url);
+      const json = await response.json();
+      setDataMarvel(json.data);
+    } catch (error) {
+      console.error("Error fetching events:", error);
+    }
+  };
+
   useEffect(() => {
-    
-    fetch(
-      "https://gateway.marvel.com/v1/public/events?ts=1&limit=50&apikey=" +
-        import.meta.env.VITE_PUBLIC_MARVEL +
-        "&hash=" +
-        import.meta.env.VITE_HASH
-    )
-      .then((e) => e.json())
-      .then((f) => setDataMarvel(f.data));
+    fetchEvents(); // inicial
   }, []);
-  return (
-    <div className="flex flex-col content-center justify-center bg-slate-900 ">
-      <div
-        className="text-slate-300 tablet:text-5xl text-4xl py-8 text-center w-screen font-bold   
-             flex  justify-center gap-x-3 text center "
-      >
-        <img className="  opacity-90  w-8 tablet:w-14 " src={estrella}></img>
 
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      fetchEvents(busqueda);
+    }, 500);
+    return () => clearTimeout(delayDebounce);
+  }, [busqueda]);
+
+  return (
+    <div className="flex flex-col content-center justify-center bg-slate-900">
+      <div className="text-slate-300 tablet:text-5xl text-4xl py-8 text-center w-screen font-bold flex justify-center gap-x-3 text-center">
+        <img className="opacity-90 w-8 tablet:w-14" src={estrella} alt="Estrella Icon" />
         <h1 className="flex items-center">Events</h1>
       </div>
-      <div className="w-full  flex  tablet:px-4 ">
 
-<input type="text " onChange={(e)=>setBusqueda(e.target.value)} name="busqueda" className="text-center rounded bg-slate-700  grow text-gray-200 text-xl tablet:text-2xl px-2 tablet:py-4"  />
-</div>
+      <div className="w-full flex tablet:px-4">
+        <input
+          type="text"
+          onChange={(e) => setBusqueda(e.target.value)}
+          name="busqueda"
+          placeholder="Search events..."
+          className="text-center rounded bg-slate-700 grow text-gray-200 text-xl tablet:text-2xl px-2 tablet:py-4"
+        />
+      </div>
 
-      <div className="flex w-full  flex-wrap  justify-center content-center gap-2 py-8 rounded ">
+      <div className="flex w-full flex-wrap justify-center content-center gap-2 py-8 rounded">
         {dataMarvel
           ? dataMarvel.results
               .filter(
                 (f) =>
-                  f.thumbnail.path !=
+                  f.thumbnail.path !==
                   "http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available"
               )
-              .map((e) => {
-                return (
-                  <Card
+              .map((e) => (
+                <Card
                   tipo="events"
+                  key={e.id}
                   id={e.id}
-                    key={e.id}
-                    img={e.thumbnail.path + ".jpg"}
-                    titulo={e.name ? e.name : e.title}
-                  ></Card>
-                );
-              })
+                  img={`${e.thumbnail.path}.jpg`}
+                  titulo={e.name || e.title}
+                />
+              ))
           : ""}
-        {console.log(dataMarvel ? dataMarvel : "")}
       </div>
     </div>
   );
