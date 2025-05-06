@@ -10,7 +10,7 @@ const Series = () => {
   const fetchSeries = async (query = "") => {
     try {
       const { ts, apikey, hash } = getMarvelAuthParams();
-      const url = `https://gateway.marvel.com/v1/public/series?ts=${ts}&limit=100${
+      const url = `https://gateway.marvel.com/v1/public/series?ts=${ts}&limit=30${
         query ? `&titleStartsWith=${query}` : ""
       }&apikey=${apikey}&hash=${hash}`;
 
