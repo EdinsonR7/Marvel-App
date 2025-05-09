@@ -10,8 +10,6 @@ function Comics() {
   const publicKey = import.meta.env.VITE_PUBLIC_MARVEL;
   const privateKey = import.meta.env.VITE_PRIVATE_MARVEL;
 
-  console.log("Public Key:", publicKey);
-  console.log("Private Key:", privateKey);
 
 
   // Función para construir la URL con hash dinámico
@@ -22,7 +20,7 @@ function Comics() {
     return title ? `${base}&titleStartsWith=${title}` : base;
   };
 
-  console.log(getMarvelUrl(busqueda));
+
 
 
   // Petición inicial (todos los comics)

@@ -7,6 +7,7 @@ import img3 from "../images/home.svg";
 import CarouselModel from "./CarouselModel";
 import carouselResponsive from "./CarouselResponsive";
 import CarouselResponsive from "./CarouselResponsive";
+import md5 from "md5";
 
 const ComicsId = () => {
   let { id } = useParams();
@@ -16,20 +17,20 @@ const ComicsId = () => {
   const [dmEvents, setDmEvents] = useState();
   let ancho = visualViewport;
   let percentaje = ancho < 385 ? 100 : 30;
-  const apiConsumo = ({ url, data, info }) => {
-    fetch(
-      "https://gateway.marvel.com/v1/public/comics/" +
-        id +
-        url +
-        "?ts=1&limit=30&apikey=" +
-        import.meta.env.VITE_PUBLIC_MARVEL +
-        "&hash=" +
-        import.meta.env.VITE_HASH
-    )
-      .then((e) => e.json())
-      .then((f) => f.data)
-      .then((g) => data(info ? g : g.results[0]));
-  };
+
+ const apiConsumo = ({ url, data, info }) => {
+  const ts = Date.now().toString();
+  const publicKey = import.meta.env.VITE_PUBLIC_MARVEL;
+  const privateKey = import.meta.env.VITE_PRIVATE_MARVEL;
+  const hash = md5(ts + privateKey + publicKey);
+
+  fetch(
+    `https://gateway.marvel.com/v1/public/comics/${id}${url}?ts=${ts}&limit=30&apikey=${publicKey}&hash=${hash}`
+  )
+    .then((e) => e.json())
+    .then((f) => f.data)
+    .then((g) => data(info ? g : g.results[0]));
+};
   useEffect(() => {
     apiConsumo({ url: "", data: setDataMarvel });
     apiConsumo({ url: "/events", data: setDmCha, info: "a" });
