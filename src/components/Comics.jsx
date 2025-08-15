@@ -11,7 +11,6 @@ function Comics() {
   const privateKey = import.meta.env.VITE_PRIVATE_MARVEL;
 
 
-
   // Función para construir la URL con hash dinámico
   const getMarvelUrl = (title = "") => {
     const ts = Date.now().toString();
@@ -19,8 +18,6 @@ function Comics() {
     const base = `https://gateway.marvel.com/v1/public/comics?ts=${ts}&limit=30&apikey=${publicKey}&hash=${hash}`;
     return title ? `${base}&titleStartsWith=${title}` : base;
   };
-
-
 
 
   // Petición inicial (todos los comics)
